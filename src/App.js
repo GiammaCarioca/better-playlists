@@ -33,7 +33,7 @@ const PlaylistContainer = styled.div`
   flex-direction: row;
   justify-content: space-evenly;
   align-items: center;
-  padding-top: 40px;
+  padding-top: 80px;
 
   li {
     list-style-type: none;
@@ -127,23 +127,26 @@ minutes
 const Filter = () => (
   <FilterContainer>
     <img src="" alt="" />
-    <input type="" />
+    <input type="text" />
   </FilterContainer>
 );
 
-const Playlist = () => (
-  <PlaylistContainer>
-    <div>
-      <img src="" alt="" />
-      <h3>Playlist Name</h3>
-      <ul>
-        <li>Song 1</li>
-        <li>Song 2</li>
-        <li>Song 3</li>
-      </ul>
-    </div>
-  </PlaylistContainer>
-);
+class Playlist extends Component {
+  render() {
+    const playlist = this.props.playlist;
+    return (
+      <div>
+        <img src="" alt="" />
+        <h3>{playlist.name}</h3>
+        <ul>
+          {playlist.songs.map(song => (
+            <li>{song.name}</li>
+          ))}
+        </ul>
+      </div>
+    );
+  }
+}
 
 class App extends Component {
   constructor() {
@@ -172,10 +175,9 @@ class App extends Component {
             </AggregatesContainer>
             <Filter />
             <PlaylistContainer>
-              <Playlist />
-              <Playlist />
-              <Playlist />
-              <Playlist />
+              {this.state.serverData.user.playlists.map(playlist => (
+                <Playlist playlist={playlist} />
+              ))}
             </PlaylistContainer>
           </div>
         ) : (
