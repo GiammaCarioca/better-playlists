@@ -56,7 +56,7 @@ const fakeServerData = {
     name: 'Giamma',
     playlists: [
       {
-        name: 'My favorites',
+        name: 'My Favorites',
         songs: [
           { name: 'Love On The Brain', duration: 224 },
           { name: 'Fire bomb', duration: 258 },
@@ -91,73 +91,63 @@ const fakeServerData = {
   },
 };
 
-class PlaylistCounter extends Component {
-  render() {
-    return (
-      <div>
-        <h2>
-          {this.props.playlists.length}
-          {' '}
+const PlaylistCounter = ({ playlists }) => (
+  <div>
+    <h2>
+      {playlists.length}
+      {' '}
 playlists
-        </h2>
-      </div>
-    );
-  }
-}
+    </h2>
+  </div>
+);
 
-class HoursCounter extends Component {
-  render() {
-    const allSongs = this.props.playlists.reduce(
-      (songs, eachPlaylist) => songs.concat(eachPlaylist.songs),
-      [],
-    );
-    const totalDuration = allSongs.reduce((sum, eachSong) => sum + eachSong.duration, 0);
-    return (
-      <div>
-        <h2>
-          {Math.floor(totalDuration / 60)}
-          {' '}
+const HoursCounter = ({ playlists }) => {
+  const allSongs = playlists.reduce((songs, eachPlaylist) => songs.concat(eachPlaylist.songs), []);
+  const totalDuration = allSongs.reduce((sum, eachSong) => sum + eachSong.duration, 0);
+
+  return (
+    <div>
+      <h2>
+        {Math.floor(totalDuration / 60)}
+        {' '}
 minutes
-        </h2>
-      </div>
-    );
-  }
-}
+      </h2>
+    </div>
+  );
+};
 
-const Filter = () => (
+const Filter = props => (
   <FilterContainer>
     <img src="" alt="" />
-    <input type="text" />
+    <input type="text" onChange={event => props.onTextChange(event.target.value)} />
   </FilterContainer>
 );
 
-class Playlist extends Component {
-  render() {
-    const playlist = this.props.playlist;
-    return (
-      <div>
-        <img src="" alt="" />
-        <h3>{playlist.name}</h3>
-        <ul>
-          {playlist.songs.map(song => (
-            <li>{song.name}</li>
-          ))}
-        </ul>
-      </div>
-    );
-  }
-}
+const Playlist = ({ playlist }) => (
+  <div>
+    <img src="" alt="" />
+    <h3>{playlist.name}</h3>
+    <ul>
+      {playlist.songs.map(song => (
+        <li>{song.name}</li>
+      ))}
+    </ul>
+  </div>
+);
 
 class App extends Component {
   constructor() {
     super();
-    this.state = { serverData: {} };
+    this.state = {
+      serverData: {},
+      filterString: '',
+    };
   }
 
   componentDidMount() {
     setTimeout(() => {
       this.setState({ serverData: fakeServerData });
-    }, 3000);
+    }, 1000);
   }
 
   render() {
@@ -173,11 +163,13 @@ class App extends Component {
               <PlaylistCounter playlists={this.state.serverData.user.playlists} />
               <HoursCounter playlists={this.state.serverData.user.playlists} />
             </AggregatesContainer>
-            <Filter />
+            <Filter onTextChange={text => this.setState({ filterString: text })} />
             <PlaylistContainer>
-              {this.state.serverData.user.playlists.map(playlist => (
-                <Playlist playlist={playlist} />
-              ))}
+              {this.state.serverData.user.playlists
+                .filter(playlist => playlist.name.toLowerCase().includes(this.state.filterString.toLowerCase()))
+                .map(playlist => (
+                  <Playlist playlist={playlist} />
+                ))}
             </PlaylistContainer>
           </div>
         ) : (
